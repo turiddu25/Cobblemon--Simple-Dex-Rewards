@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "simpledexrewards_fabric",
+  "id": "cobblemonpokedex_fabric",
   "version": "${version}",
-  "name": "Simple Dex Rewards",
-  "description": "Simple rewards implementation for Dex completion",
+  "name": "Cobblemon Pokedex",
+  "description": "Pokedex progression and rewards system for Cobblemon",
   "authors": [
     "Turiddu25"
   ],
@@ -12,7 +12,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.cobblemon.mdks.fabric.SimpleDexRewards"
+      "com.cobblemon.mdks.cobblemonpokedex.CobblemonPokedex"
     ]
   },
   "depends": {
