@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "simpledexrewards_fabric",
+  "version": "${version}",
+  "name": "Simple Dex Rewards",
+  "description": "Simple rewards implementation for Dex completion",
+  "authors": [
+    "Turiddu25"
+  ],
+  "license": "MIT License",
+  "icon": "assets/example/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.cobblemon.mdks.fabric.SimpleDexRewards"
+    ]
+  },
+  "depends": {
+    "minecraft": "1.21.1",
+    "fabricloader": ">=0.14.21",
+    "fabric-api": "*",
+    "cobblemon": ">=1.6.0"
+  }
+}
