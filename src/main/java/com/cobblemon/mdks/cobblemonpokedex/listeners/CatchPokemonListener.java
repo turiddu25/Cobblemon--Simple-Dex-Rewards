@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 public class CatchPokemonListener {
     private static final Logger LOGGER = LoggerFactory.getLogger("cobblemonpokedex");
+    private static final String PREFIX = "§b[§dSimpleDexRewards§b]§r ";
 
     public static void register() {
         CobblemonEvents.POKEMON_CAPTURED.subscribe(Priority.NORMAL, CatchPokemonListener::handle);
@@ -48,9 +49,10 @@ public class CatchPokemonListener {
                         completionPercentage >= tier && 
                         playerData.getTotalCaught() < uniqueSpeciesCaught) { // Only if we've just increased our count
                         player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-                            "§aYou've reached " + tier + "% Pokédex completion! Use /dexrewards to claim your reward!"
+                            PREFIX + "§a§lMilestone Reached! §aYou've achieved §e" + tier + "%§a Pokédex completion!\n" +
+                            PREFIX + "§7Use §f/dexrewards§7 to claim your special rewards!"
                         ));
-                        break;
+                        // Don't break - show messages for all reached tiers
                     }
                 }
                 

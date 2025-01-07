@@ -31,6 +31,7 @@ import java.util.List;
 
 public class DexRewardsCommand extends BaseCommand {
     private static final org.slf4j.Logger LOGGER = CobblemonPokedex.LOGGER;
+    private static final String PREFIX = "§b[§dSimpleDexRewards§b]§r ";
 
     public DexRewardsCommand() {
         super("dexrewards", 
@@ -124,6 +125,16 @@ public class DexRewardsCommand extends BaseCommand {
 
             List<Component> lore = new ArrayList<>();
             lore.add(Component.literal("§7Required: §f" + tier + "%"));
+
+            // Add reward list to lore
+            String[] rewardTexts = reward.getHoverText().split("\n");
+            for (String text : rewardTexts) {
+                if (text.startsWith("•")) {
+                    lore.add(Component.literal("§7" + text));
+                }
+            }
+
+            lore.add(Component.literal("")); // Empty line for spacing
             if (completed && claimed) {
                 lore.add(Component.literal("§a✔ Claimed"));
             } else if (completed) {
@@ -139,13 +150,18 @@ public class DexRewardsCommand extends BaseCommand {
 
             GooeyButton tierButton = GooeyButton.builder()
                 .display(displayItem)
-                .with(DataComponents.CUSTOM_NAME, Component.literal("§6Tier " + tier))
+                .with(DataComponents.CUSTOM_NAME, Component.literal("§6" + reward.getDisplay().getFormat()))
                 .with(DataComponents.LORE, new ItemLore(lore))
                 .with(DataComponents.HIDE_ADDITIONAL_TOOLTIP, net.minecraft.util.Unit.INSTANCE)
                 .onClick(action -> {
                     if (completed && !claimed) {
                         claimRewards(player, tier);
-                        openPokedexUI(player, completionPercentage); // Refresh UI
+                        // Refresh UI with updated completion percentage
+                        openPokedexUI(player, getPokedexCompletion(player));
+                    } else if (!completed) {
+                        player.sendSystemMessage(Component.literal(PREFIX + "§cYou need §e" + tier + "%§c completion to claim this reward! §7(Current: §f" + String.format("%.1f%%", completionPercentage) + "§7)"));
+                    } else if (claimed) {
+                        player.sendSystemMessage(Component.literal(PREFIX + "§cYou have already claimed this reward!"));
                     }
                 })
                 .build();
@@ -164,26 +180,26 @@ public class DexRewardsCommand extends BaseCommand {
             UIManager.openUIForcefully(player, page);
         } catch (Exception e) {
             CobblemonPokedex.LOGGER.error("Error opening Pokedex UI", e);
-            player.sendSystemMessage(Component.literal("§cError opening Pokedex UI. Please try again."));
+            player.sendSystemMessage(Component.literal(PREFIX + "§cError opening Pokedex UI. §7Please try again."));
         }
     }
 
     private void claimRewards(ServerPlayer player, int tier) {
         double completionPercentage = getPokedexCompletion(player);
         if (completionPercentage < tier) {
-            player.sendSystemMessage(Component.literal("§cYou haven't reached " + tier + "% completion yet!"));
+            player.sendSystemMessage(Component.literal(PREFIX + "§cYou need §e" + tier + "%§c completion to claim this reward! §7(Current: §f" + String.format("%.1f%%", completionPercentage) + "§7)"));
             return;
         }
 
         var playerData = CobblemonPokedex.playerDataConfig.getPlayerData(player.getUUID());
         if (playerData.hasClaimedReward(tier)) {
-            player.sendSystemMessage(Component.literal("§cYou've already claimed this reward!"));
+            player.sendSystemMessage(Component.literal(PREFIX + "§cYou have already claimed this reward!"));
             return;
         }
 
         RewardTier reward = CobblemonPokedex.rewardConfig.getReward(String.valueOf(tier));
         if (reward == null) {
-            player.sendSystemMessage(Component.literal("§cNo reward available for this tier!"));
+            player.sendSystemMessage(Component.literal(PREFIX + "§cNo reward available for this tier!"));
             return;
         }
 
@@ -195,9 +211,9 @@ public class DexRewardsCommand extends BaseCommand {
             playerData.setClaimedReward(tier, true);
             CobblemonPokedex.playerDataConfig.savePlayer(player.getUUID());
             
-            player.sendSystemMessage(Component.literal("§aYou received your reward for reaching " + tier + "% completion!"));
+            player.sendSystemMessage(Component.literal(PREFIX + "§a§lCongratulations! §aYou received your reward for reaching §e" + tier + "%§a completion!"));
         } catch (Exception e) {
-            player.sendSystemMessage(Component.literal("§cError giving reward: " + e.getMessage()));
+            player.sendSystemMessage(Component.literal(PREFIX + "§cError giving reward: §7" + e.getMessage()));
             CobblemonPokedex.LOGGER.error("Error giving reward for tier " + tier, e);
         }
     }

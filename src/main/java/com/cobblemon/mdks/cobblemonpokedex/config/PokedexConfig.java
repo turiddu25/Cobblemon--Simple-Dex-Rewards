@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class PokedexConfig {
-    private static final String CONFIG_PATH = "config/cobblemonpokedex";
+    private static final String CONFIG_PATH = "config/simpledexrewards";
     private static final String CONFIG_FILE = "config.json";
     
     // Core settings

@@ -2,22 +2,23 @@ package com.cobblemon.mdks.cobblemonpokedex.config;
 
 import com.cobblemon.mdks.cobblemonpokedex.CobblemonPokedex;
 import com.cobblemon.mdks.cobblemonpokedex.util.Utils;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.registries.BuiltInRegistries;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class RewardConfig {
-    private static final String CONFIG_PATH = "config/cobblemonpokedex";
+    private static final String CONFIG_PATH = "config/simpledexrewards";
     private static final String CONFIG_FILE = "rewardconfig.json";
     
     private List<Integer> completionTiers;
@@ -79,43 +80,107 @@ public class RewardConfig {
         this.completionTiers = List.of(10, 20, 30, 40, 50, 60, 70, 80, 90, 100);
         rewards.clear();
 
-        // Define rewards with their display items
-        Object[][] rewardData = {
-            // command, display item, row, slot
-            {"cobblemon:poke_ball 5", "minecraft:red_dye", 1, 2},
-            {"cobblemon:great_ball 3", "minecraft:blue_dye", 1, 4},
-            {"cobblemon:ultra_ball 2", "minecraft:yellow_dye", 1, 6},
-            {"cobblemon:master_ball 1", "minecraft:purple_dye", 1, 8},
-            {"cobblemon:exp_share 1", "minecraft:experience_bottle", 3, 2},
-            {"cobblemon:rare_candy 3", "minecraft:diamond", 3, 4},
-            {"cobblemon:exp_candy_l 5", "minecraft:emerald", 3, 6},
-            {"cobblemon:exp_candy_xl 3", "minecraft:gold_ingot", 3, 8},
-            {"cobblemon:master_ball 2", "minecraft:nether_star", 5, 2},
-            {"cobblemon:master_ball 3", "minecraft:dragon_egg", 5, 4}
+        setupDefaultReward(10, 1, 2, new Reward[]{
+            createItemReward("minecraft:diamond", 3),
+            createPokemonReward("Charmander", false, 5),
+            createCommandReward("effect give @p minecraft:speed 60 1", "minecraft:paper", "Speed Boost")
+        }, "cobblemon:poke_ball");
+
+        setupDefaultReward(20, 1, 4, new Reward[]{
+            createItemReward("minecraft:emerald", 5),
+            createPokemonReward("Bulbasaur", true, 10),
+            createCommandReward("effect give @p minecraft:jump_boost 60 1", "minecraft:paper", "Jump Boost")
+        }, "cobblemon:citrine_ball");
+
+        setupDefaultReward(30, 1, 6, new Reward[]{
+            createItemReward("minecraft:gold_ingot", 7),
+            createPokemonReward("Squirtle", false, 15),
+            createCommandReward("effect give @p minecraft:night_vision 60 1", "minecraft:paper", "Night Vision")
+        }, "cobblemon:verdant_ball");
+
+        setupDefaultReward(40, 1, 8, new Reward[]{
+            createItemReward("minecraft:iron_ingot", 10),
+            createPokemonReward("Pikachu", true, 20),
+            createCommandReward("effect give @p minecraft:strength 60 1", "minecraft:paper", "Strength Boost")
+        }, "cobblemon:azure_ball");
+
+        setupDefaultReward(50, 3, 2, new Reward[]{
+            createItemReward("minecraft:netherite_scrap", 5),
+            createPokemonReward("Eevee", false, 25),
+            createCommandReward("effect give @p minecraft:invisibility 60 1", "minecraft:paper", "Invisibility")
+        }, "cobblemon:roseate_ball");
+
+        setupDefaultReward(60, 3, 4, new Reward[]{
+            createItemReward("minecraft:lapis_lazuli", 8),
+            createPokemonReward("Jigglypuff", true, 30),
+            createCommandReward("effect give @p minecraft:regeneration 60 1", "minecraft:paper", "Regeneration")
+        }, "cobblemon:slate_ball");
+
+        setupDefaultReward(70, 3, 6, new Reward[]{
+            createItemReward("minecraft:redstone", 12),
+            createPokemonReward("Snorlax", false, 35),
+            createCommandReward("effect give @p minecraft:fire_resistance 60 1", "minecraft:paper", "Fire Resistance")
+        }, "cobblemon:great_ball");
+
+        setupDefaultReward(80, 3, 8, new Reward[]{
+            createItemReward("minecraft:coal", 15),
+            createPokemonReward("Mewtwo", true, 40),
+            createCommandReward("effect give @p minecraft:levitation 10 1", "minecraft:paper", "Levitation")
+        }, "cobblemon:premier_ball");
+
+        setupDefaultReward(90, 5, 3, new Reward[]{
+            createItemReward("minecraft:quartz", 20),
+            createPokemonReward("Arcanine", false, 45),
+            createCommandReward("effect give @p minecraft:instant_health 1 1", "minecraft:paper", "Instant Health")
+        }, "cobblemon:ultra_ball");
+
+        setupDefaultReward(100, 5, 7, new Reward[]{
+            createItemReward("minecraft:nether_star", 1),
+            createPokemonReward("Rayquaza", true, 50),
+            createCommandReward("give @p minecraft:totem_of_undying 1", "minecraft:paper", "Totem of Undying")
+        }, "cobblemon:master_ball");
+    }
+
+    private void setupDefaultReward(int tier, int row, int slot, Reward[] rewards, String displayItem) {
+        RewardTier rewardTier = new RewardTier();
+        rewardTier.row = row;
+        rewardTier.slot = slot;
+        rewardTier.rewards = List.of(rewards);
+        String displayName = switch(tier) {
+            case 100 -> "Master Trainer";
+            case 90 -> "Elite Trainer";
+            case 80 -> "Expert Trainer";
+            case 70 -> "Veteran Trainer";
+            case 60 -> "Skilled Trainer";
+            case 50 -> "Advanced Trainer";
+            case 40 -> "Intermediate Trainer";
+            case 30 -> "Developing Trainer";
+            case 20 -> "Novice Trainer";
+            case 10 -> "Beginner Trainer";
+            default -> tier + "% Completion";
         };
+        rewardTier.display = new DisplayInfo("tier_" + tier, displayName);
+        rewardTier.display.item = displayItem;
+        this.rewards.put(String.valueOf(tier), rewardTier);
+    }
 
-        // Set up tier rewards
-        for (int i = 0; i < completionTiers.size(); i++) {
-            int tier = completionTiers.get(i);
-            RewardTier reward = new RewardTier();
-            reward.command = "give %player% " + rewardData[i][0];
-            reward.row = (int)rewardData[i][2];
-            reward.slot = (int)rewardData[i][3];
-            
-            DisplayInfo display = new DisplayInfo("tier_" + tier, "Tier " + tier + " Reward");
-            display.item = (String)rewardData[i][1];
-            reward.display = display;
-            
-            rewards.put(String.valueOf(tier), reward);
-        }
+    private Reward createItemReward(String itemId, int count) {
+        JsonObject data = new JsonObject();
+        data.addProperty("id", itemId);
+        data.addProperty("Count", count);
+        return Reward.item(data);
+    }
 
-        // Add completion display
-        RewardTier completion = new RewardTier();
-        completion.row = 6;
-        completion.slot = 5;
-        completion.display = new DisplayInfo("completion", "Caught: {caught}/{total} ({percent}%)");
-        completion.display.item = "minecraft:experience_bottle";
-        rewards.put("completion", completion);
+    private Reward createPokemonReward(String species, boolean shiny, int level) {
+        JsonObject data = new JsonObject();
+        data.addProperty("species", species);
+        data.addProperty("shiny", shiny);
+        data.addProperty("level", level);
+        return Reward.pokemon(data);
+    }
+
+    private Reward createCommandReward(String command, String displayId, String displayName) {
+        return Reward.command(command, displayId, displayName);
     }
     
     public void save() {
@@ -136,6 +201,15 @@ public class RewardConfig {
     }
     
     public RewardTier getReward(String tier) {
+        if ("completion".equals(tier)) {
+            // Return hardcoded completion tracker
+            RewardTier completion = new RewardTier();
+            completion.row = 6;
+            completion.slot = 5;
+            completion.display = new DisplayInfo("completion", "Caught: {caught}/{total} ({percent}%)");
+            completion.display.item = "minecraft:experience_bottle";
+            return completion;
+        }
         return rewards.get(tier);
     }
     
@@ -150,15 +224,31 @@ public class RewardConfig {
     public static class RewardTier {
         private int row;
         private int slot;
-        private String command;
+        private List<Reward> rewards;
         private DisplayInfo display;
         
-        public RewardTier() {}
+        public RewardTier() {
+            this.rewards = new ArrayList<>();
+        }
         
         public RewardTier(JsonObject json) {
             this.row = json.has("row") ? json.get("row").getAsInt() : 1;
             this.slot = json.has("slot") ? json.get("slot").getAsInt() : 1;
-            this.command = json.has("command") ? json.get("command").getAsString() : null;
+            
+            this.rewards = new ArrayList<>();
+            if (json.has("rewards")) {
+                JsonArray rewardsArray = json.getAsJsonArray("rewards");
+                for (JsonElement element : rewardsArray) {
+                    rewards.add(Reward.fromJson(element.getAsJsonObject()));
+                }
+            } else if (json.has("command")) {
+                // Legacy support for old config format
+                String command = json.get("command").getAsString();
+                JsonObject data = new JsonObject();
+                data.addProperty("id", "minecraft:paper");
+                data.addProperty("display_name", "Legacy Reward");
+                rewards.add(Reward.command(command, "minecraft:paper", "Legacy Reward"));
+            }
             
             if (json.has("display")) {
                 JsonObject displayJson = json.getAsJsonObject("display");
@@ -175,51 +265,53 @@ public class RewardConfig {
             JsonObject json = new JsonObject();
             json.addProperty("row", row);
             json.addProperty("slot", slot);
-            if (command != null) json.addProperty("command", command);
-            if (display != null) json.add("display", display.toJson());
+            
+            JsonArray rewardsArray = new JsonArray();
+            for (Reward reward : rewards) {
+                rewardsArray.add(reward.toJson());
+            }
+            json.add("rewards", rewardsArray);
+            
+            if (display != null) {
+                json.add("display", display.toJson());
+            }
             return json;
         }
         
         public void grant(ServerPlayer player) {
-            if (command != null && !command.isEmpty()) {
-                String finalCommand = command
-                    .replace("%player%", player.getName().getString())
-                    .replace("%uuid%", player.getUUID().toString());
-                
-                CommandSourceStack source = player.getServer().createCommandSourceStack();
-                player.getServer().getCommands().performPrefixedCommand(source, finalCommand);
+            for (Reward reward : rewards) {
+                reward.grant(player);
             }
         }
 
         public ItemStack getDisplayItem() {
-            if (display == null) {
-                CobblemonPokedex.LOGGER.error("Display info is null for reward");
-                return new ItemStack(Items.PAPER);
-            }
-            if (display.getItem() == null) {
-                CobblemonPokedex.LOGGER.error("Display item is null for reward type: " + display.getType());
+            if (display == null || display.getItem() == null) {
+                CobblemonPokedex.LOGGER.error("Display info or item is null for reward");
                 return new ItemStack(Items.PAPER);
             }
 
             ResourceLocation itemId = ResourceLocation.tryParse(display.getItem());
-            if (itemId == null) {
-                CobblemonPokedex.LOGGER.error("Failed to parse item ID: " + display.getItem());
-                return new ItemStack(Items.PAPER);
-            }
-
-            if (!BuiltInRegistries.ITEM.containsKey(itemId)) {
-                CobblemonPokedex.LOGGER.error("Item not found in registry: " + itemId);
+            if (itemId == null || !BuiltInRegistries.ITEM.containsKey(itemId)) {
+                CobblemonPokedex.LOGGER.error("Invalid item ID: " + display.getItem());
                 return new ItemStack(Items.PAPER);
             }
 
             ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.get(itemId));
-            CobblemonPokedex.LOGGER.info("Created display item: " + display.getItem() + " -> " + stack.getItem().getName(stack).getString());
             return stack;
+        }
+
+        public String getHoverText() {
+            StringBuilder text = new StringBuilder(display.getFormat());
+            text.append("\n\nRewards:");
+            for (Reward reward : rewards) {
+                text.append("\n• ").append(reward.getDisplayText());
+            }
+            return text.toString();
         }
         
         public int getRow() { return row; }
         public int getSlot() { return slot; }
-        public String getCommand() { return command; }
+        public List<Reward> getRewards() { return rewards; }
         public DisplayInfo getDisplay() { return display; }
     }
     

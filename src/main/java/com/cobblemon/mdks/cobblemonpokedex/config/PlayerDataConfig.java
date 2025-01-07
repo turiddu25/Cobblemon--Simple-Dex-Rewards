@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class PlayerDataConfig {
     private Map<UUID, PlayerData> playerDataMap = new HashMap<>();
-    private static final String CONFIG_PATH = "config/cobblemonpokedex/players";
+    private static final String CONFIG_PATH = "config/simpledexrewards/players";
     private static final String DATA_VERSION = "1.0";
 
     public PlayerDataConfig() {

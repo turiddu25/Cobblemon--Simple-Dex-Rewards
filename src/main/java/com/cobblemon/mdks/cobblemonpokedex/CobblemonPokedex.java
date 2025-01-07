@@ -13,7 +13,7 @@ import net.minecraft.server.MinecraftServer;
 import org.slf4j.LoggerFactory;
 
 public class CobblemonPokedex implements ModInitializer {
-    public static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger("cobblemonpokedex");
+    public static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger("simpledexrewards");
     public static PokedexConfig pokedexConfig;
     public static RewardConfig rewardConfig;
     public static PlayerDataConfig playerDataConfig;
@@ -24,7 +24,7 @@ public class CobblemonPokedex implements ModInitializer {
     public void onInitialize() {
         try {
             // Create base config directory
-            Utils.checkForDirectory("/config/cobblemonpokedex");
+            Utils.checkForDirectory("/config/simpledexrewards");
             
             // Load configs in order
             LOGGER.info("Loading Pokedex configuration...");
