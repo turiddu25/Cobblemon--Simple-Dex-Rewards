@@ -26,7 +26,7 @@ public class Utils {
     public static String readFileSync(String path, String fileName) {
         try {
             // Ensure directory exists
-            File dir = checkForDirectory("/" + path);
+            File dir = checkForDirectory(path);
             Path filePath = Paths.get(dir.getAbsolutePath(), fileName);
             File file = filePath.toFile();
 
@@ -44,14 +44,19 @@ public class Utils {
     public static boolean writeFileSync(String path, String fileName, String content) {
         try {
             // Ensure directory exists
-            File dir = checkForDirectory("/" + path);
+            File dir = checkForDirectory(path);
             Path filePath = Paths.get(dir.getAbsolutePath(), fileName);
 
             // Write file
             try (FileWriter writer = new FileWriter(filePath.toFile())) {
                 writer.write(content);
             }
-            CobblemonPokedex.LOGGER.info("Wrote file: " + filePath.toAbsolutePath());
+            File file = filePath.toFile();
+            CobblemonPokedex.LOGGER.info("Successfully wrote file: " + filePath.toAbsolutePath());
+            if (!file.exists()) {
+                CobblemonPokedex.LOGGER.warn("File was written but does not exist: " + filePath.toAbsolutePath());
+                return false;
+            }
             return true;
         } catch (Exception e) {
             CobblemonPokedex.LOGGER.error("Failed to write file: " + fileName, e);
@@ -60,7 +65,7 @@ public class Utils {
     }
 
     public static File checkForDirectory(String path) {
-        File dir = new File(new File("").getAbsolutePath() + path);
+            File dir = new File(path);
         if (!dir.exists()) {
             dir.mkdirs();
         }
