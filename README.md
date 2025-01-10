@@ -5,6 +5,7 @@ A comprehensive Pokedex reward system for Cobblemon 1.6+ running on Minecraft 1.
 ## Installation and Dependencies
 
 [Curseforge download](https://www.curseforge.com/minecraft/mc-mods/cobblemon-simpledexrewards)
+
 [Modrinth download](https://modrinth.com/mod/cobblemon-simpledexrewards)
 
 This mod requires the following dependencies:
