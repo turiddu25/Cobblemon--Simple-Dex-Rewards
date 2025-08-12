@@ -1,16 +1,21 @@
 package com.cobblemon.mdks.cobblemonpokedex;
 
+import org.slf4j.LoggerFactory;
+
+import com.cobblemon.mdks.cobblemonpokedex.command.DexRewardsCommand;
 import com.cobblemon.mdks.cobblemonpokedex.config.PlayerDataConfig;
 import com.cobblemon.mdks.cobblemonpokedex.config.PokedexConfig;
 import com.cobblemon.mdks.cobblemonpokedex.config.RewardConfig;
-import com.cobblemon.mdks.cobblemonpokedex.command.DexRewardsCommand;
-import com.cobblemon.mdks.cobblemonpokedex.util.*;
 import com.cobblemon.mdks.cobblemonpokedex.listeners.CatchPokemonListener;
+import com.cobblemon.mdks.cobblemonpokedex.util.CommandsRegistry;
+import com.cobblemon.mdks.cobblemonpokedex.util.MessageHandler;
+import com.cobblemon.mdks.cobblemonpokedex.util.Permissions;
+import com.cobblemon.mdks.cobblemonpokedex.util.Utils;
+
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
-import org.slf4j.LoggerFactory;
 
 public class CobblemonPokedex implements ModInitializer {
     public static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger("simpledexrewards");
@@ -30,6 +35,7 @@ public class CobblemonPokedex implements ModInitializer {
             LOGGER.info("Loading Pokedex configuration...");
             pokedexConfig = new PokedexConfig();
             pokedexConfig.load();
+            pokedexConfig.save(); // Save after load to ensure new fields are written
             
             LOGGER.info("Loading reward configuration...");
             rewardConfig = new RewardConfig();
@@ -38,7 +44,9 @@ public class CobblemonPokedex implements ModInitializer {
             LOGGER.info("Loading player data configuration...");
             playerDataConfig = new PlayerDataConfig();
             
-            LOGGER.info("All configurations loaded successfully");
+            // Initialize MessageHandler with configured prefix
+            LOGGER.info("Initializing MessageHandler...");
+            MessageHandler.initialize(pokedexConfig.getMessagePrefix());
             
             LOGGER.info("All configurations loaded successfully");
         } catch (Exception e) {
@@ -69,9 +77,14 @@ public class CobblemonPokedex implements ModInitializer {
         try {
             LOGGER.info("Reloading configurations...");
             pokedexConfig.load();
+            pokedexConfig.save(); // Save after load to ensure new fields are written
             rewardConfig.load();
             playerDataConfig = new PlayerDataConfig();
             permissions = new Permissions();
+            
+            // Reinitialize MessageHandler with updated prefix
+            MessageHandler.initialize(pokedexConfig.getMessagePrefix());
+            
             LOGGER.info("Cobblemon Pokedex Progression reloaded successfully");
         } catch (Exception e) {
             LOGGER.error("Failed to reload configurations", e);

@@ -1,17 +1,19 @@
 package com.cobblemon.mdks.cobblemonpokedex.listeners;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.cobblemon.mdks.cobblemonpokedex.CobblemonPokedex;
 import com.cobblemon.mdks.cobblemonpokedex.config.PlayerDataConfig;
+import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.api.Priority;
 import com.cobblemon.mod.common.api.events.CobblemonEvents;
 import com.cobblemon.mod.common.api.events.pokemon.PokemonCapturedEvent;
-import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.api.pokedex.CaughtCount;
-import net.minecraft.resources.ResourceLocation;
+
 import kotlin.Unit;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class CatchPokemonListener {
     private static final Logger LOGGER = LoggerFactory.getLogger("cobblemonpokedex");
@@ -40,8 +42,8 @@ public class CatchPokemonListener {
                 // Save player data
                 CobblemonPokedex.playerDataConfig.savePlayer(player.getUUID());
                 
-                // Calculate completion percentage
-                double completionPercentage = (double) uniqueSpeciesCaught / CobblemonPokedex.pokedexConfig.getMaxTiers() * 100;
+                // Calculate completion percentage based on total available Pokemon
+                double completionPercentage = (double) uniqueSpeciesCaught / CobblemonPokedex.pokedexConfig.getTotalPokemon() * 100;
                 
                 // Check if we've just reached a new tier
                 for (Integer tier : CobblemonPokedex.rewardConfig.getCompletionTiers()) {

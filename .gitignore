@@ -51,3 +51,6 @@ cline_docs/techContext.md
 cline_docs/systemPatterns.md
 cline_docs/progress.md
 rewardconfigexample.md
+config/simpledexrewards/players/*
+logs/*
+.kiro/*

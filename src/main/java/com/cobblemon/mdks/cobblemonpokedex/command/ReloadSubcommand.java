@@ -2,15 +2,14 @@ package com.cobblemon.mdks.cobblemonpokedex.command;
 
 import com.cobblemon.mdks.cobblemonpokedex.CobblemonPokedex;
 import com.cobblemon.mdks.cobblemonpokedex.config.PlayerDataConfig;
-import com.cobblemon.mdks.cobblemonpokedex.util.Subcommand;
 import com.cobblemon.mdks.cobblemonpokedex.util.Permissions;
+import com.cobblemon.mdks.cobblemonpokedex.util.Subcommand;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.CommandNode;
+
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
-
-import java.util.function.Supplier;
 
 public class ReloadSubcommand extends Subcommand {
     public ReloadSubcommand() {
@@ -29,6 +28,7 @@ public class ReloadSubcommand extends Subcommand {
         try {
             // Reload all configurations
             CobblemonPokedex.pokedexConfig.load();
+            CobblemonPokedex.pokedexConfig.save(); // Save after load to ensure new fields are written
             context.getSource().sendSystemMessage(
                 Component.literal("§aReloaded Pokedex configuration")
             );

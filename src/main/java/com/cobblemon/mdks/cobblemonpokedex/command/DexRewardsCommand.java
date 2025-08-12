@@ -60,17 +60,14 @@ public class DexRewardsCommand extends BaseCommand {
             // Get player's Pokedex instance
             var pokedex = Cobblemon.INSTANCE.getPlayerDataManager().getPokedexData(player);
             
-            // Get total number of available Pokemon species
-            int totalSpecies = PokemonSpecies.INSTANCE.getSpecies().size();
-            
             // Get number of unique species caught
             int uniqueSpeciesCaught = pokedex.getDexCalculatedValue(
                 ResourceLocation.tryParse("cobblemon:national"),
                 CaughtCount.INSTANCE
             );
             
-            // Calculate completion percentage based on unique species
-            return (double) uniqueSpeciesCaught / totalSpecies * 100;
+            // Calculate completion percentage based on configured total Pokemon
+            return (double) uniqueSpeciesCaught / CobblemonPokedex.pokedexConfig.getTotalPokemon() * 100;
         } catch (Exception e) {
             LOGGER.error("Error calculating Pokedex completion for player " + player.getName().getString(), e);
             return 0.0;
@@ -84,7 +81,7 @@ public class DexRewardsCommand extends BaseCommand {
             .build();
 
         // Add completion display
-        int totalSpecies = PokemonSpecies.INSTANCE.getSpecies().size();
+        int totalSpecies = CobblemonPokedex.pokedexConfig.getTotalPokemon();
         int uniqueSpeciesCaught = Cobblemon.INSTANCE.getPlayerDataManager()
             .getPokedexData(player)
             .getDexCalculatedValue(
@@ -211,7 +208,7 @@ public class DexRewardsCommand extends BaseCommand {
             playerData.setClaimedReward(tier, true);
             CobblemonPokedex.playerDataConfig.savePlayer(player.getUUID());
             
-            player.sendSystemMessage(Component.literal(PREFIX + "§a§lCongratulations! §aYou received your reward for reaching §e" + tier + "%§a completion!"));
+            player.sendSystemMessage(Component.literal(PREFIX + CobblemonPokedex.rewardConfig.getCongratulatoryMessageTemplate().replace("{tier}", String.valueOf(tier))));
         } catch (Exception e) {
             player.sendSystemMessage(Component.literal(PREFIX + "§cError giving reward: §7" + e.getMessage()));
             CobblemonPokedex.LOGGER.error("Error giving reward for tier " + tier, e);

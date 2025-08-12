@@ -1,21 +1,22 @@
 package com.cobblemon.mdks.cobblemonpokedex.config;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.cobblemon.mdks.cobblemonpokedex.CobblemonPokedex;
 import com.cobblemon.mdks.cobblemonpokedex.util.Utils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.registries.BuiltInRegistries;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class RewardConfig {
     private static final String CONFIG_PATH = "config/simpledexrewards";
@@ -24,6 +25,7 @@ public class RewardConfig {
     private List<Integer> completionTiers;
     private Map<String, RewardTier> rewards;
     private boolean enablePermissionNodes;
+    private String congratulatoryMessageTemplate;
     
     public RewardConfig() {
         this.rewards = new HashMap<>();
@@ -62,6 +64,11 @@ public class RewardConfig {
                 .toList();
         }
         
+        // Load congratulatory message template
+        this.congratulatoryMessageTemplate = json.has("congratulatoryMessageTemplate") 
+            ? json.get("congratulatoryMessageTemplate").getAsString() 
+            : "[SimpleDexRewards] §a§lCongratulations! §aYou received your reward for reaching §e{tier}%§a completion!";
+        
         // Load rewards
         this.rewards.clear();
         if (json.has("rewards")) {
@@ -79,6 +86,7 @@ public class RewardConfig {
         this.enablePermissionNodes = true;
         this.completionTiers = List.of(10, 20, 30, 40, 50, 60, 70, 80, 90, 100);
         rewards.clear();
+        this.congratulatoryMessageTemplate = "[SimpleDexRewards] §a§lCongratulations! §aYou received your reward for reaching §e{tier}%§a completion!";
 
         setupDefaultReward(10, 1, 2, new Reward[]{
             createItemReward("minecraft:diamond", 3),
@@ -191,6 +199,9 @@ public class RewardConfig {
         var tiersArray = Utils.newGson().toJsonTree(completionTiers).getAsJsonArray();
         json.add("completionTiers", tiersArray);
         
+        // Save congratulatory message template
+        json.addProperty("congratulatoryMessageTemplate", congratulatoryMessageTemplate);
+        
         JsonObject rewardsJson = new JsonObject();
         for (Map.Entry<String, RewardTier> entry : rewards.entrySet()) {
             rewardsJson.add(entry.getKey(), entry.getValue().toJson());
@@ -219,6 +230,10 @@ public class RewardConfig {
     
     public boolean isEnablePermissionNodes() {
         return enablePermissionNodes;
+    }
+    
+    public String getCongratulatoryMessageTemplate() {
+        return congratulatoryMessageTemplate;
     }
     
     public static class RewardTier {
